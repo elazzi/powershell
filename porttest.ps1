@@ -1,4 +1,4 @@
-Workflow Test-PingWF{
+Workflow Test-WF{
     param([string[]]$iprange)
 	
 	[int32[]]$arrayofports = 80,8080,443
@@ -72,4 +72,4 @@ function Test-Port2
 			}
 
 }
-Test-PingWF -iprange (1..254 | % {"192.168.50."+$_})
+Test-WF -iprange (1..254 | % {"192.168.50."+$_})
