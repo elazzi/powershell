@@ -1,0 +1,75 @@
+Workflow Test-PingWF{
+    param([string[]]$iprange)
+	
+	[int32[]]$arrayofports = 80,8080,443
+
+    foreach -parallel($ip in $iprange)
+    {	foreach -parallel($port in $arrayofports)
+    {
+        #"testing: $ip"
+		#Test-NetConnection $ip -Port 80 -ErrorAction SilentlyContinue  -InformationLevel Quiet
+		Test-Port2 $ip $port
+		#$requestCallback = $state = $null
+		#$timeout=100
+		#$port=80
+		#$client = New-Object System.Net.Sockets.TcpClient
+		#$beginConnect = $client.BeginConnect($hostname,$port,$requestCallback,$state)
+		#Start-Sleep -milli $timeOut
+		#if ($client.Connected) { $open = $true } else { $open = $false }
+		#$client.Close()
+		#[pscustomobject]@{hostname=$hostname;port=$port;open=$open}
+    }}
+}
+
+function Test-Port2 
+{
+		Param( [string]$srv,[int]$port=80,[int]$timeout=300)
+		# Test-Port.ps1
+		# Does a TCP connection on specified port (135 by default)
+
+		$ErrorActionPreference = "SilentlyContinue"
+		$verbose=[bool]::Parse('false')
+		# Create TCP Client
+		$tcpclient = new-Object system.Net.Sockets.TcpClient
+
+		# Tell TCP Client to connect to machine on Port
+		$iar = $tcpclient.BeginConnect($srv,$port,$null,$null)
+
+		# Set the wait time
+		$wait = $iar.AsyncWaitHandle.WaitOne($timeout,$false)
+
+		# Check to see if the connection is done
+		if(!$wait)
+		{
+			# Close the connection and report timeout
+			$tcpclient.Close()
+			if($verbose){Write-Host "testing: $srv port $port failed "}
+			$failed = $true
+			#Return $false
+		}
+		else
+		{
+			# Close the connection and report the error if there is one
+			$error.Clear()
+			$tcpclient.EndConnect($iar) | out-Null
+			if(!$?){if($verbose){write-host $error[0]};$failed = $true}
+			$tcpclient.Close()
+		}
+
+		# Return $true if connection Establish else $False
+		if($failed){
+			#"testing: $srv port $port failed "
+			#return $false
+			}
+		else{
+			"testing: $srv port $port open "
+		$url = "http://${srv}:${port}"
+		$result = Invoke-WebRequest -Method HEAD -Uri $url -UseBasicParsing
+		$result.RawContent
+
+		$result.Headers
+			return $true 
+			}
+
+}
+Test-PingWF -iprange (1..254 | % {"192.168.50."+$_})
