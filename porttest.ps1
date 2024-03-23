@@ -7,21 +7,12 @@ Workflow Test-WF{
     {	foreach -parallel($port in $arrayofports)
     {
         #"testing: $ip"
-		#Test-NetConnection $ip -Port 80 -ErrorAction SilentlyContinue  -InformationLevel Quiet
-		Test-Port2 $ip $port
-		#$requestCallback = $state = $null
-		#$timeout=100
-		#$port=80
-		#$client = New-Object System.Net.Sockets.TcpClient
-		#$beginConnect = $client.BeginConnect($hostname,$port,$requestCallback,$state)
-		#Start-Sleep -milli $timeOut
-		#if ($client.Connected) { $open = $true } else { $open = $false }
-		#$client.Close()
-		#[pscustomobject]@{hostname=$hostname;port=$port;open=$open}
+		Test-Port $ip $port
+
     }}
 }
 
-function Test-Port2 
+function Test-Port
 {
 		Param( [string]$srv,[int]$port=80,[int]$timeout=300)
 		# Test-Port.ps1
